@@ -39,9 +39,11 @@ export default async function LoginPage() {
 
       <div className="relative overflow-hidden rounded-[2rem] border border-[color:var(--color-line)] bg-[color:var(--color-surface)] p-7 md:p-10">
         <Image
-          src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=70"
+          src="https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1200&q=70"
           alt=""
           fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          priority
           className="object-cover opacity-10"
         />
         <div className="relative">

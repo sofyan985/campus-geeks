@@ -52,7 +52,8 @@ export function LoginForm() {
           type="email"
           required
           autoComplete="email"
-          defaultValue="student@uetpeshawar.edu.pk"
+          defaultValue={state.values?.email ?? "student@uetpeshawar.edu.pk"}
+          key={state.values?.email ?? "default"}
           pattern={emailPattern}
           title={emailHint}
           className={`${inputClass} mt-2`}
@@ -94,7 +95,14 @@ export function SignupForm() {
         <label className={labelClass} htmlFor="name">
           Full name
         </label>
-        <input id="name" name="name" required className={`${inputClass} mt-2`} />
+        <input
+          id="name"
+          name="name"
+          required
+          defaultValue={state.values?.name ?? ""}
+          key={state.values?.name ?? "default-name"}
+          className={`${inputClass} mt-2`}
+        />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
@@ -106,6 +114,8 @@ export function SignupForm() {
             name="email"
             type="email"
             required
+            defaultValue={state.values?.email ?? ""}
+            key={state.values?.email ?? "default-email"}
             pattern={emailPattern}
             title={emailHint}
             placeholder={`you@${CAMPUS_EMAIL_DOMAIN}`}
