@@ -6,12 +6,11 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 /// Postgres via the pg driver adapter. DATABASE_URL should be the Supabase
-/// session-pooler URI (IPv4) — see the README.
+/// session-pooler URI (IPv4) — see the README. A missing URL surfaces as a
+/// connection error on first query rather than at import time so `next build`
+/// can complete without database access.
 function createClient() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error("DATABASE_URL is not set");
-  }
+  const connectionString = process.env.DATABASE_URL ?? "";
   return new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 }
 
