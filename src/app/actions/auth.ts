@@ -8,7 +8,7 @@ import { createSession, destroySession } from "@/lib/auth";
 import { CAMPUS_EMAIL_MESSAGE, isCampusEmail } from "@/lib/campus";
 import { prisma } from "@/lib/db";
 
-export type AuthState = { error?: string };
+export type AuthState = { error?: string; values?: { email?: string; name?: string } };
 
 const credentials = z.object({
   email: z
@@ -26,18 +26,22 @@ const signupSchema = credentials.extend({
 });
 
 export async function login(_state: AuthState, formData: FormData): Promise<AuthState> {
+  const email = String(formData.get("email") ?? "").toLowerCase().trim();
   const parsed = credentials.safeParse({
-    email: String(formData.get("email") ?? "").toLowerCase().trim(),
+    email,
     password: String(formData.get("password") ?? ""),
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Check your details." };
+    return {
+      error: parsed.error.issues[0]?.message ?? "Check your details.",
+      values: { email },
+    };
   }
 
   const user = await prisma.user.findUnique({ where: { email: parsed.data.email } });
   if (!user || !(await bcrypt.compare(parsed.data.password, user.passwordHash))) {
-    return { error: "Email or password is incorrect." };
+    return { error: "Email or password is incorrect.", values: { email } };
   }
 
   await createSession(user.id);
@@ -46,9 +50,11 @@ export async function login(_state: AuthState, formData: FormData): Promise<Auth
 }
 
 export async function signup(_state: AuthState, formData: FormData): Promise<AuthState> {
+  const name = String(formData.get("name") ?? "").trim();
+  const email = String(formData.get("email") ?? "").toLowerCase().trim();
   const parsed = signupSchema.safeParse({
-    name: String(formData.get("name") ?? "").trim(),
-    email: String(formData.get("email") ?? "").toLowerCase().trim(),
+    name,
+    email,
     password: String(formData.get("password") ?? ""),
     department: String(formData.get("department") ?? "").trim() || undefined,
     semester: String(formData.get("semester") ?? "").trim() || undefined,
@@ -56,12 +62,15 @@ export async function signup(_state: AuthState, formData: FormData): Promise<Aut
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? "Check your details." };
+    return {
+      error: parsed.error.issues[0]?.message ?? "Check your details.",
+      values: { email, name },
+    };
   }
 
   const existing = await prisma.user.findUnique({ where: { email: parsed.data.email } });
   if (existing) {
-    return { error: "That email already has an account." };
+    return { error: "That email already has an account.", values: { email, name } };
   }
 
   const user = await prisma.user.create({
