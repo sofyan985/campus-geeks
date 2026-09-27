@@ -7,10 +7,10 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
-/// Roles: STUDENT | ORGANIZER | ADMIN (SQLite has no native enums)
+/// Roles: STUDENT | ORGANIZER | ADMIN
 model User {
   id           String     @id @default(cuid())
   email        String     @unique

@@ -7,14 +7,14 @@ society events and everything else happening around campus this week.
 
 - Next.js 16 (App Router, Server Actions, Turbopack)
 - TypeScript, Tailwind CSS v4, Framer Motion, Lucide icons
-- Prisma 7 with SQLite locally, Supabase Postgres ready (driver adapters)
+- Prisma 7 on Supabase Postgres (`@prisma/adapter-pg` driver adapter)
 - Signed HTTP-only cookie sessions (HMAC-SHA256), restricted to campus email addresses
 
 ## Getting started
 
 ```bash
 npm install
-cp .env.example .env
+cp .env.example .env   # set DATABASE_URL to your Supabase URI
 npm run setup    # migrate + generate + seed
 npm run dev
 ```
@@ -23,7 +23,7 @@ The app runs at http://localhost:3000.
 
 ### Demo accounts
 
-Seeded for local development only, password `campus1234`:
+Seeded by `npm run seed` (it wipes and refills the database), password `campus1234`:
 
 | Email                  | Role      |
 | ---------------------- | --------- |
@@ -63,10 +63,14 @@ from `NEXT_PUBLIC_CAMPUS_EMAIL_DOMAIN` / `NEXT_PUBLIC_CAMPUS_NAME` and are enfor
 
 ## Supabase and Clerk
 
-The database layer picks its Prisma driver adapter from `DATABASE_URL`: a `postgres...` URL uses
-the Postgres adapter (Supabase), anything else uses local SQLite. To move to Supabase set
-`DATABASE_URL` to the Supabase connection string, change `provider` to `postgresql` in
-`prisma/schema.prisma`, then run `npx prisma migrate dev --config prisma7.config.ts`.
+The database is Supabase Postgres. `DATABASE_URL` must be the **session pooler** URI from the
+Supabase dashboard (Connect → Method: Session pooler), e.g.
+`postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres`.
+The direct `db.<ref>.supabase.co` host is IPv6-only and unreachable from most IPv4 networks
+(including Vercel). Set the same `DATABASE_URL` in the Vercel project environment variables.
+
+Schema changes: edit `prisma/schema.prisma`, then `npx prisma migrate dev --config prisma7.config.ts`
+locally and `npm run db:push` (`prisma migrate deploy`) in deployment.
 
 Clerk keys (`NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`) are reserved in
 `.env.example`. Session handling lives behind `src/lib/auth.ts` (`getSessionUser`, `requireUser`,
