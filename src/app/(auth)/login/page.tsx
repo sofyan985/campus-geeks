@@ -43,6 +43,7 @@ export default async function LoginPage() {
           alt=""
           fill
           sizes="(min-width: 768px) 50vw, 100vw"
+          priority
           className="object-cover opacity-10"
         />
         <div className="relative">
