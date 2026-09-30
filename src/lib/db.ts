@@ -1,4 +1,3 @@
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
 
@@ -6,17 +5,13 @@ const globalForPrisma = globalThis as unknown as {
   prisma?: PrismaClient;
 };
 
-const DEFAULT_URL = "file:./prisma/dev.db";
-
-/// Postgres (Supabase) when DATABASE_URL points at a Postgres server, local
-/// SQLite otherwise. Switching to Supabase also needs
-/// `provider = "postgresql"` in prisma/schema.prisma — see the README.
+/// Postgres via the pg driver adapter. DATABASE_URL should be the Supabase
+/// session-pooler URI (IPv4) — see the README. A missing URL surfaces as a
+/// connection error on first query rather than at import time so `next build`
+/// can complete without database access.
 function createClient() {
-  const url = process.env.DATABASE_URL ?? DEFAULT_URL;
-  const adapter = url.startsWith("postgres")
-    ? new PrismaPg({ connectionString: url })
-    : new PrismaBetterSqlite3({ url });
-  return new PrismaClient({ adapter });
+  const connectionString = process.env.DATABASE_URL ?? "";
+  return new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 }
 
 export const prisma = globalForPrisma.prisma ?? createClient();

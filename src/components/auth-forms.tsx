@@ -147,13 +147,22 @@ export function SignupForm() {
             name="department"
             placeholder="Computer Science"
             className={`${inputClass} mt-2`}
+            defaultValue={state.values?.department ?? ""}
+            key={state.values?.department ?? "default-department"}
           />
         </div>
         <div>
           <label className={labelClass} htmlFor="semester">
             Semester
           </label>
-          <input id="semester" name="semester" placeholder="3" className={`${inputClass} mt-2`} />
+          <input
+            id="semester"
+            name="semester"
+            placeholder="3"
+            className={`${inputClass} mt-2`}
+            defaultValue={state.values?.semester ?? ""}
+            key={state.values?.semester ?? "default-semester"}
+          />
         </div>
       </div>
 
