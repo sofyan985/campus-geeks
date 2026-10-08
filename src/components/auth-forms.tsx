@@ -52,7 +52,7 @@ export function LoginForm() {
           type="email"
           required
           autoComplete="email"
-          defaultValue={state.values?.email ?? "student@uetpeshawar.edu.pk"}
+          defaultValue={state.values?.email ?? `student@${CAMPUS_EMAIL_DOMAIN}`}
           key={state.values?.email ?? "default"}
           pattern={emailPattern}
           title={emailHint}
