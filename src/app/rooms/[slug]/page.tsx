@@ -45,11 +45,13 @@ export default async function RoomPage({ params }: Props) {
     ? (
         await prisma.chatMessage.findMany({
           where: { roomId: room.id },
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: "desc" },
           take: 200,
           include: { user: { select: { id: true, name: true, department: true } } },
         })
-      ).map((message) => ({
+      )
+        .reverse()
+        .map((message) => ({
         id: message.id,
         body: message.body,
         createdAt: formatTime(message.createdAt),
