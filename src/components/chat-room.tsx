@@ -40,9 +40,10 @@ export function ChatRoomView({
   const formRef = useRef<HTMLFormElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
+  const lastMessageId = messages.at(-1)?.id;
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
-  }, [messages.length]);
+  }, [lastMessageId]);
 
   useEffect(() => {
     const timer = setInterval(() => router.refresh(), 7000);
