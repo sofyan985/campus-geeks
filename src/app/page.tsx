@@ -10,7 +10,7 @@ import { StatusPill } from "@/components/status-pill";
 import { getSessionUser } from "@/lib/auth";
 import { CATEGORY_LIST, getCategory } from "@/lib/categories";
 import { getRegistrationInfo } from "@/lib/events";
-import { addDays, formatDay, formatShortDate, formatTime, startOfDay } from "@/lib/format";
+import { addDays, campusDayIndex, formatDay, formatShortDate, formatTime, startOfDay } from "@/lib/format";
 import {
   getBookmarkedIds,
   getFeatured,
@@ -25,7 +25,7 @@ import { prisma } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 function isWeekend(date: Date) {
-  const day = date.getDay();
+  const day = campusDayIndex(date);
   return day === 0 || day === 6;
 }
 

@@ -2,10 +2,16 @@ import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
+import { addDays, campusDayIndex, fromCampusLocal, startOfDay, toInputValue } from "../src/lib/format";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
   throw new Error("DATABASE_URL is not set");
+}
+if (process.env.ALLOW_SEED_RESET !== "1") {
+  throw new Error(
+    "The seed wipes every table. Set ALLOW_SEED_RESET=1 to confirm you want to reset this database.",
+  );
 }
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString }),
@@ -62,17 +68,14 @@ const IMAGES = {
 };
 
 function at(dayOffset: number, hour: number, minute = 0) {
-  const date = new Date();
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() + dayOffset);
-  date.setHours(hour, minute, 0, 0);
-  return date;
+  const day = addDays(startOfDay(new Date()), dayOffset);
+  const time = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+  return fromCampusLocal(toInputValue(day), time)!;
 }
 
 /** Offset (in days from today) of the next occurrence of a weekday. 0 = Sunday. */
 function nextWeekday(weekday: number, weeksAhead = 0) {
-  const today = new Date();
-  const diff = (weekday - today.getDay() + 7) % 7;
+  const diff = (weekday - campusDayIndex(new Date()) + 7) % 7;
   return diff + weeksAhead * 7;
 }
 

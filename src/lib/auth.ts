@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 
 const COOKIE_NAME = "campus_session";
@@ -68,12 +69,12 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 
 export async function requireUser(): Promise<SessionUser> {
   const user = await getSessionUser();
-  if (!user) throw new Error("You need to sign in to do that.");
+  if (!user) redirect("/login");
   return user;
 }
 
 export async function requireAdmin(): Promise<SessionUser> {
   const user = await requireUser();
-  if (user.role !== "ADMIN") throw new Error("Admins only.");
+  if (user.role !== "ADMIN") redirect("/");
   return user;
 }

@@ -5,7 +5,7 @@ import { EventFilters } from "@/components/event-filters";
 import { getSessionUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { getRegistrationInfo } from "@/lib/events";
-import { addDays, startOfDay } from "@/lib/format";
+import { addDays, campusDayIndex, startOfDay } from "@/lib/format";
 import { eventInclude, getBookmarkedIds } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +42,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
   } else if (when === "month") {
     startTo = addDays(today, 30);
   } else if (when === "weekend") {
-    const day = today.getDay();
+    const day = campusDayIndex(today);
     const daysToSaturday = (6 - day + 7) % 7;
     startFrom = addDays(today, daysToSaturday);
     startTo = addDays(startFrom, 2);
@@ -65,12 +65,16 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
         ...(q
           ? {
               OR: [
-                { title: { contains: q } },
-                { description: { contains: q } },
-                { venue: { contains: q } },
-                { organizerName: { contains: q } },
-                { tag: { contains: q } },
-                { match: { is: { OR: [{ teamA: { contains: q } }, { teamB: { contains: q } }, { sport: { contains: q } }] } } },
+                { title: { contains: q, mode: "insensitive" } },
+                { description: { contains: q, mode: "insensitive" } },
+                { venue: { contains: q, mode: "insensitive" } },
+                { organizerName: { contains: q, mode: "insensitive" } },
+                { tag: { contains: q, mode: "insensitive" } },
+                { match: { is: { OR: [
+                        { teamA: { contains: q, mode: "insensitive" } },
+                        { teamB: { contains: q, mode: "insensitive" } },
+                        { sport: { contains: q, mode: "insensitive" } },
+                      ] } } },
               ],
             }
           : {}),
