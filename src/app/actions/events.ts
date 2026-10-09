@@ -7,6 +7,7 @@ import { getSessionUser, requireAdmin, requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { CATEGORY_KEYS } from "@/lib/categories";
 import { slugify } from "@/lib/events";
+import { fromCampusLocal } from "@/lib/format";
 
 export type FormState = { error?: string; ok?: boolean };
 
@@ -46,8 +47,7 @@ const createSchema = z.object({
 
 function combine(date: string, time: string | undefined) {
   if (!time) return null;
-  const parsed = new Date(`${date}T${time}`);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
+  return fromCampusLocal(date, time);
 }
 
 async function uniqueSlug(title: string) {
@@ -199,17 +199,27 @@ export async function updateParticipantCount(formData: FormData) {
   revalidatePath("/admin");
 }
 
+function parseScore(value: FormDataEntryValue | null) {
+  const text = String(value ?? "").trim();
+  if (!text) return null;
+  const n = Number(text);
+  return Number.isInteger(n) && n >= 0 ? n : null;
+}
+
 export async function recordMatchResult(formData: FormData) {
   await requireAdmin();
   const eventId = String(formData.get("eventId"));
-  const scoreA = Number(formData.get("scoreA"));
-  const scoreB = Number(formData.get("scoreB"));
+  const scoreA = parseScore(formData.get("scoreA"));
+  const scoreB = parseScore(formData.get("scoreB"));
+  if (scoreA === null || scoreB === null) {
+    throw new Error("Enter both scores to record a result.");
+  }
 
   await prisma.sportsMatch.update({
     where: { eventId },
     data: {
-      scoreA: Number.isFinite(scoreA) ? scoreA : null,
-      scoreB: Number.isFinite(scoreB) ? scoreB : null,
+      scoreA,
+      scoreB,
       resultRecordedAt: new Date(),
     },
   });

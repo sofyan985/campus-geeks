@@ -15,7 +15,7 @@ society events and everything else happening around campus this week.
 ```bash
 npm install
 cp .env.example .env   # set DATABASE_URL to your Supabase URI
-npm run setup    # migrate + generate + seed
+ALLOW_SEED_RESET=1 npm run setup    # migrate + generate + seed (wipes the database)
 npm run dev
 ```
 
@@ -23,7 +23,7 @@ The app runs at http://localhost:3000.
 
 ### Demo accounts
 
-Seeded by `npm run seed` (it wipes and refills the database), password `campus1234`:
+Seeded by `ALLOW_SEED_RESET=1 npm run seed` (it wipes and refills the database — the guard variable is required), password `campus1234`:
 
 | Email                  | Role      |
 | ---------------------- | --------- |
